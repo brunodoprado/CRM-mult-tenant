@@ -1,9 +1,6 @@
-from django.urls import path
-from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
-from tenants.views import TenantSignupView
+from django.urls import path, include
 
+# Rotas que precisam de tenant (acessadas via subdomínio)
 urlpatterns = [
-    path('api/signup/', TenantSignupView.as_view()),
-    path('api/token/', TokenObtainPairView.as_view()),
-    path('api/token/refresh/', TokenRefreshView.as_view()),
+    path('api/', include('crm.urls')),      # API do CRM (customers)
 ]

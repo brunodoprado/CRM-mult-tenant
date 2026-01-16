@@ -12,8 +12,9 @@ class TenantSignupView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         result = serializer.save()
         
+        # Retornar apenas o subdomínio - o frontend decide para onde redirecionar
         return Response({
             'message': 'Empresa criada com sucesso!',
             'subdomain': result['domain'].domain,
-            'redirect_url': f"http://{result['domain'].domain}:8000/login"
+            'tenant_url': f"http://{result['domain'].domain}:5173"  # Frontend URL
         }, status=status.HTTP_201_CREATED)

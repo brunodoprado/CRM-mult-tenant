@@ -30,8 +30,14 @@ export default function SignupPage() {
         admin_password: formData.adminPassword,
       });
       
-      // Redirecionar para o domínio do tenant
-      window.location.href = response.data.redirect_url;
+      // O backend retorna tenant_url apontando para o frontend
+      if (response.data.tenant_url) {
+        window.location.href = response.data.tenant_url;
+      } else {
+        // Fallback: construir URL manualmente
+        const subdomain = response.data.subdomain;
+        window.location.href = `http://${subdomain}:5173`;
+      }
     } catch (err) {
       setError(err.response?.data?.subdomain?.[0] || 'Erro ao criar conta');
     } finally {

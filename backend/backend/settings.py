@@ -20,6 +20,7 @@ SHARED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'users',
+    'crm',
 ]
 
 # 2. Apps por cliente (Schemas individuais)
@@ -41,6 +42,13 @@ TENANT_DOMAIN_MODEL = "tenants.Domain"
 DATABASE_ROUTERS = (
     'django_tenants.routers.TenantSyncRouter',
 )
+
+# 6. Configuração de URLs públicas (schema 'public')
+# Rotas que não precisam de tenant (signup, login, etc)
+PUBLIC_SCHEMA_URLCONF = 'backend.public_urls'
+
+# 7. Usar schema público quando não encontrar tenant para o hostname
+SHOW_PUBLIC_IF_NO_TENANT_FOUND = True
 # -----------------------------------
 
 # SECURITY WARNING: keep the secret key used in production secret!
