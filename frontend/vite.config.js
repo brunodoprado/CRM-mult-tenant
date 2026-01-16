@@ -10,4 +10,12 @@ export default defineConfig({
       },
     }),
   ],
+  server: {
+    host: true, // Permite acesso de qualquer host
+    port: 5173,
+    // Configurar para aceitar subdomínios .localhost
+    hmr: {
+      host: 'localhost',
+    },
+  },
 })

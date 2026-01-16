@@ -20,7 +20,6 @@ SHARED_APPS = [
     'rest_framework_simplejwt',
     'corsheaders',
     'users',
-    'crm',
 ]
 
 # 2. Apps por cliente (Schemas individuais)
@@ -28,7 +27,8 @@ TENANT_APPS = [
     'django.contrib.auth', # Se os usuários forem isolados por tenant
     'django.contrib.contenttypes',
     
-    # Adicione aqui seus apps de CRM que terão dados isolados
+    # Apps de CRM que terão dados isolados por tenant
+    'crm',
 ]
 
 # 3. Junção obrigatória para o Django
@@ -109,10 +109,13 @@ DATABASES = {
 }
 
 
-# CORS
+# CORS - Permitir localhost e todos os subdomínios .localhost
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
 ]
+
+# Permitir qualquer subdomínio .localhost:5173
+CORS_ALLOW_ALL_ORIGINS = True  # Em desenvolvimento, permitir todos os origens
 
 # REST Framework
 REST_FRAMEWORK = {

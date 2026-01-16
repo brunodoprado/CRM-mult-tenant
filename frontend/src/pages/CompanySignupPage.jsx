@@ -1,10 +1,9 @@
-// src/pages/SignupPage.jsx
+// src/pages/CompanySignupPage.jsx
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/pages.css';
 
-export default function SignupPage() {
+export default function CompanySignupPage() {
   const [formData, setFormData] = useState({
     companyName: '',
     subdomain: '',
@@ -14,8 +13,6 @@ export default function SignupPage() {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const navigate = useNavigate();
   
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,17 +28,40 @@ export default function SignupPage() {
         admin_password: formData.adminPassword,
       });
       
-      // O backend retorna tenant_url apontando para o frontend
-      if (response.data.tenant_url) {
-        window.location.href = response.data.tenant_url;
-      } else {
-        // Fallback: construir URL manualmente
-        const subdomain = response.data.subdomain;
-        window.location.href = `http://${subdomain}:5173`;
+      // Extrair o subdomínio da resposta
+      const subdomain = response.data.subdomain?.split('.')[0] || formData.subdomain;
+      
+      if (!subdomain) {
+        setError('Erro ao obter subdomínio');
+        return;
+      }
+      
+      // Tentar fazer login automaticamente com as credenciais do admin
+      try {
+        const loginResponse = await axios.post(`http://${subdomain}.localhost:8000/api/token/`, {
+          username: formData.adminEmail,
+          password: formData.adminPassword,
+        });
+        
+        // Salvar token no localStorage
+        if (loginResponse.data.access) {
+          localStorage.setItem('access_token', loginResponse.data.access);
+          localStorage.setItem('refresh_token', loginResponse.data.refresh);
+          
+          // Redirecionar para o dashboard
+          window.location.href = `http://${subdomain}.localhost:5173/dashboard`;
+        } else {
+          // Se não conseguir fazer login automático, redirecionar para login
+          window.location.href = `http://${subdomain}.localhost:5173/login`;
+        }
+      } catch (loginErr) {
+        // Se houver erro no login automático, redirecionar para login mesmo assim
+        // O usuário pode fazer login manualmente
+        console.warn('Login automático falhou, redirecionando para página de login:', loginErr);
+        window.location.href = `http://${subdomain}.localhost:5173/login`;
       }
     } catch (err) {
-      setError(err.response?.data?.subdomain?.[0] || 'Erro ao criar conta');
-    } finally {
+      setError(err.response?.data?.subdomain?.[0] || err.response?.data?.message || 'Erro ao criar empresa');
       setLoading(false);
     }
   };
@@ -49,7 +69,7 @@ export default function SignupPage() {
   return (
     <div className="page-container">
       <div className="page-card">
-        <h1 className="page-title">Criar Nova Conta</h1>
+        <h1 className="page-title">Criar Nova Empresa</h1>
         
         {error && (
           <div className="alert-error">
@@ -95,7 +115,7 @@ export default function SignupPage() {
           
           <div className="form-group">
             <label className="form-label">
-              Seu Nome
+              Nome do Administrador
             </label>
             <input
               type="text"
@@ -108,7 +128,7 @@ export default function SignupPage() {
           
           <div className="form-group">
             <label className="form-label">
-              Email
+              Email do Administrador
             </label>
             <input
               type="email"
@@ -121,7 +141,7 @@ export default function SignupPage() {
           
           <div className="form-group">
             <label className="form-label">
-              Senha
+              Senha do Administrador
             </label>
             <input
               type="password"
@@ -138,7 +158,7 @@ export default function SignupPage() {
             disabled={loading}
             className="btn-primary"
           >
-            {loading ? 'Criando...' : 'Criar Conta'}
+            {loading ? 'Criando...' : 'Criar Empresa'}
           </button>
         </form>
       </div>
